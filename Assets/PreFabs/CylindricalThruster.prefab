@@ -443,7 +443,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1658855350437079469
 Transform:
   m_ObjectHideFlags: 0
@@ -673,7 +673,7 @@ GameObject:
   - component: {fileID: 5402445122312306534}
   - component: {fileID: 4380813287572487674}
   m_Layer: 0
-  m_Name: Thruster
+  m_Name: CylindricalThruster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -711,6 +711,8 @@ MonoBehaviour:
   power: 0
   ThrottleSpeed: 1
   exhaust: {fileID: 5487743070139379031}
+  ForceVector: {x: 0, y: 0, z: 0}
+  TorqueVector: {x: 0, y: 0, z: 0}
 --- !u!120 &4380813287572487674
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -826,7 +828,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2584916247632961209
 Transform:
   m_ObjectHideFlags: 0
@@ -2879,8 +2881,8 @@ ParticleSystem:
         m_RotationOrder: 4
     inWorldSpace: 0
   InheritVelocityModule:
-    enabled: 0
-    m_Mode: 1
+    enabled: 1
+    m_Mode: 0
     m_Curve:
       serializedVersion: 2
       minMaxState: 0
@@ -5676,6 +5678,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: f1570c3c84b09874a9d8f746ba147deb, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 370ccda49bb5c064fae591a805b890f1, type: 2}
+    - target: {fileID: -5954511383519952165, guid: f1570c3c84b09874a9d8f746ba147deb, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 370ccda49bb5c064fae591a805b890f1, type: 2}
     - target: {fileID: -944889694430808769, guid: f1570c3c84b09874a9d8f746ba147deb, type: 3}
       propertyPath: m_LocalScale.y
       value: 1

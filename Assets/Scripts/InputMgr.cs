@@ -50,7 +50,7 @@ public class InputMgr : MonoBehaviour
     public void OnAim(InputAction.CallbackContext value)
     {
         var vAimDelta = value.ReadValue<Vector2>();
-        Debug.Log(vAim.sqrMagnitude + "  " + vAimDelta);
+        //Debug.Log(vAim.sqrMagnitude + "  " + vAimDelta);
         vAim += vAimDelta * AimSensitivityCurve.Evaluate(vAim.sqrMagnitude);
         vAim = Vector3.ClampMagnitude(vAim, 1);
     }
@@ -66,6 +66,13 @@ public class InputMgr : MonoBehaviour
         if (value.phase == InputActionPhase.Performed)
         {
             disableStabilizer = true;
+            // foreach (var item in Physics.OverlapSphere(SpaceShipManager.Instance.FocusedSpaceship.transform.position, 100))
+            // {
+            //     if (item.GetComponent<Asteroid>() != null)
+            //         item.GetComponent<Rigidbody>().AddExplosionForce(10000,
+            //         SpaceShipManager.Instance.FocusedSpaceship.transform.position,
+            //         100, 0, ForceMode.Impulse);
+            // }
         }
         else if (value.phase == InputActionPhase.Canceled)
             disableStabilizer = false;

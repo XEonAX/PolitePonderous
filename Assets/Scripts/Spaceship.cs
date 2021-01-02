@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using MathNet.Numerics.LinearAlgebra;
 
 public class Spaceship : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class Spaceship : MonoBehaviour
     public List<Thruster> reverseThrusters;
     public List<Thruster> leftlateralThrusters;
     public List<Thruster> rightlateralThrusters;
+    private Matrix<double> ThrustVectorsMatrix;
     public List<Thruster> dorsalThrusters;
     public List<Thruster> ventralThrusters;
 
@@ -20,6 +22,11 @@ public class Spaceship : MonoBehaviour
     public Transform CoM;
 
     public InputMgr InputMgr;
+    public Vector3 maxForce = Vector3.zero;
+    public Vector3 minForce = Vector3.zero;
+    public Vector3 maxTorque = Vector3.zero;
+    public Vector3 minTorque = Vector3.zero;
+
     void Awake()
     {
 
@@ -29,6 +36,7 @@ public class Spaceship : MonoBehaviour
     {
         BootUpThrusters();
         CoM.localPosition = rb.centerOfMass;
+        rb.maxAngularVelocity = 1000;
     }
 
     private void BootUpThrusters()
@@ -41,7 +49,60 @@ public class Spaceship : MonoBehaviour
         leftlateralThrusters = thrusters.Where(x => Vector3.Dot(x.transform.forward, transform.right) > 0.9f).ToList();
         rightlateralThrusters = thrusters.Where(x => Vector3.Dot(x.transform.forward, -transform.right) > 0.9f).ToList();
 
+        ThrustVectorsMatrix = Matrix<double>.Build.Dense(6, thrusters.Count);
 
+        var thrusterIndex = 0;
+        foreach (Thruster thruster in this.thrusters)
+        {
+            thruster.InitializeThrustVector();
+            ThrustVectorsMatrix.SetColumn(thrusterIndex,
+             new double[]{
+                thruster.TorqueVector.x,
+                thruster.TorqueVector.y,
+                thruster.TorqueVector.z,
+                thruster.ForceVector.x,
+                thruster.ForceVector.y,
+                thruster.ForceVector.z,
+            });
+            thrusterIndex++;
+        }
+        ThrustVectorsMatrix = ThrustVectorsMatrix.NormalizeColumns(1);
+        thrusterControlVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(thrusters.Count, 0);
+        minControlVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(thrusters.Count, 0);
+        maxControlVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(thrusters.Count, 1);
+        initialGuessControlVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(thrusters.Count, 0);
+        double[,] twelveDirectionArray = {//12 = 6 Components (Tx,Ty,Tz,Fx,Fy,Fz) in 2 (+,-) directions
+                      //{Tx,Ty,Tz,Fx,Fy,Fz}
+                        { 1, 0, 0, 0, 0, 0},
+                        {-1, 0, 0, 0, 0, 0},
+                        { 0, 1, 0, 0, 0, 0},
+                        { 0,-1, 0, 0, 0, 0},
+                        { 0, 0, 1, 0, 0, 0},
+                        { 0, 0,-1, 0, 0, 0},
+                        { 0, 0, 0, 1, 0, 0},
+                        { 0, 0, 0,-1, 0, 0},
+                        { 0, 0, 0, 0, 1, 0},
+                        { 0, 0, 0, 0,-1, 0},
+                        { 0, 0, 0, 0, 0, 1},
+                        { 0, 0, 0, 0, 0,-1},
+                    };
+        twelveInputVectors = Matrix<double>.Build.DenseOfArray(twelveDirectionArray);
+        twelveControlVectors = Matrix<double>.Build.Dense(12, thrusters.Count);
+        foreach (var row in twelveInputVectors.EnumerateRowsIndexed())
+        {
+            twelveControlVectors.SetRow(row.Item1, MathNet.Numerics.FindMinimum.OfFunctionConstrained(guessedControlVector =>
+                             {
+                                 return ThrustVectorsMatrix.Multiply(guessedControlVector)
+                                 .Subtract(row.Item2)
+                                 .PointwisePower(2).Sum();
+                             },
+                            minControlVector,//LowerBound
+                            maxControlVector,//UpperBound
+                            initialGuessControlVector //InitialGuess
+                    ));
+        }
+        Debug.Log(ThrustVectorsMatrix.ToString(6, thrusters.Count));//6 Components
+        Debug.Log(twelveControlVectors.ToString(12, thrusters.Count));//6 Components in 2 directions
     }
 
     // Update is called once per frame
@@ -50,76 +111,64 @@ public class Spaceship : MonoBehaviour
 
     }
 
+    MathNet.Numerics.LinearAlgebra.Vector<double> UserInputVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(6);//6 Components (Tx,Ty,Tz,Fx,Fy,Fz)
+    private Vector<double> thrusterControlVector;
+    private Vector<double> minControlVector;
+    private Vector<double> maxControlVector;
+    private Vector<double> initialGuessControlVector;
+    private Matrix<double> twelveInputVectors;
+    private Matrix<double> twelveControlVectors;
+
     private void FixedUpdate()
     {
-        var expectedVelocity = transform.TransformDirection(new Vector3(InputMgr.vLeftRight, InputMgr.vUpDown, InputMgr.vForwardBack));
-        var expectedAngular = (transform.forward * InputMgr.vRoll);
-        expectedAngular += -transform.right * InputMgr.vAim.y;
-        expectedAngular += transform.up * InputMgr.vAim.x;
+        var userInputVelocity = new Vector3(InputMgr.vLeftRight, InputMgr.vUpDown, InputMgr.vForwardBack);
+        var userInputAngularVelocity = (Vector3.forward * InputMgr.vRoll);
+        if (InputMgr.vAim.sqrMagnitude > 0.1f)//Deadzone
+        {
+            userInputAngularVelocity += -Vector3.right * InputMgr.vAim.y;
+            userInputAngularVelocity += Vector3.up * InputMgr.vAim.x;
+        }
+
         if (!InputMgr.disableStabilizer)
         {
-            if (expectedVelocity.sqrMagnitude <= 0.2f)
+            var currentVelocity = transform.InverseTransformDirection(rb.velocity);
+            var currentAngularVelocity = transform.InverseTransformDirection(rb.angularVelocity);
+            if (Vector3.Dot(userInputVelocity, currentVelocity.normalized) <= .5f)
             {
-                expectedVelocity = (-rb.velocity) * InputMgr.StabilizerCurve.Evaluate(rb.velocity.sqrMagnitude);
-                // if (rb.velocity.sqrMagnitude > 1)
-                //     expectedVelocity = (-rb.velocity).normalized * 10;
-                // else
-                //     expectedVelocity = (-rb.velocity).normalized;
+                userInputVelocity = (userInputVelocity - (currentVelocity * .5f));
+                if (userInputVelocity.sqrMagnitude > 0 && userInputVelocity.sqrMagnitude <= 1)//Speed up braking when slow
+                    userInputVelocity = userInputVelocity.normalized * InputMgr.StabilizerCurve.Evaluate(userInputVelocity.sqrMagnitude);
             }
-            else
+            if (Vector3.Dot(userInputAngularVelocity, currentAngularVelocity.normalized) <= .5f)
             {
-                if (Vector3.Dot(expectedVelocity, rb.velocity) < 0)
-                {
-                    expectedVelocity = -rb.velocity + expectedVelocity;
-                }
-            }
-            if (expectedAngular.sqrMagnitude <= 0.2f)
-            {
-                expectedAngular = (-rb.angularVelocity) * InputMgr.StabilizerCurve.Evaluate(rb.angularVelocity.sqrMagnitude);
-                // if (rb.angularVelocity.sqrMagnitude > 0.5f)
-                //     expectedAngular = (-rb.angularVelocity).normalized * 100;
-                // else
-                //     expectedAngular = (-rb.angularVelocity).normalized * rb.angularVelocity.sqrMagnitude;
-            }
-            else
-            {
-                if (Vector3.Dot(expectedAngular, rb.angularVelocity) < 0)
-                {
-                    expectedAngular = -rb.angularVelocity + expectedAngular;
-                }
+                userInputAngularVelocity = (userInputAngularVelocity - (currentAngularVelocity * .5f));
+                if (userInputAngularVelocity.sqrMagnitude > 0 && userInputAngularVelocity.sqrMagnitude <= 1)//Speed up braking when slow
+                    userInputAngularVelocity = userInputAngularVelocity.normalized * InputMgr.StabilizerCurve.Evaluate(userInputAngularVelocity.sqrMagnitude);
             }
         }
-        foreach (Thruster thruster in this.thrusters)
+
+        UserInputVector[0] = userInputAngularVelocity.x;
+        UserInputVector[1] = userInputAngularVelocity.y;
+        UserInputVector[2] = userInputAngularVelocity.z;
+        UserInputVector[3] = userInputVelocity.x;
+        UserInputVector[4] = userInputVelocity.y;
+        UserInputVector[5] = userInputVelocity.z;
+
+        thrusterControlVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(thrusters.Count);
+        foreach (var component in UserInputVector.EnumerateIndexed())
         {
-            float dotV = Vector3.Dot(thruster.transform.forward, expectedVelocity);
-            if (dotV > 0.7f)
+            if (component.Item2 >= 0)
             {
-                thruster.power = Mathf.InverseLerp(0.7f, 1, dotV);
+                thrusterControlVector = thrusterControlVector.Add(twelveControlVectors.Row(2 * component.Item1) * component.Item2);//Use positive Torque or Force ControlVector
             }
             else
             {
-                thruster.power = 0;
-            }
-
-            float dotA = Vector3.Dot(Vector3.Cross(thruster.transform.position - rb.worldCenterOfMass, thruster.transform.forward), expectedAngular);
-            // float dotA = Vector3.Dot(Vector3.Cross(thruster.transform.position - rb.worldCenterOfMass, thruster.transform.forward), expectedAngular);
-            //thruster.power += Mathf.InverseLerp(-1, 1, dotA);
-            if (dotA > 0.1f)
-            {
-                thruster.power += Mathf.InverseLerp(0.1f, 1, dotA);
+                thrusterControlVector = thrusterControlVector.Add(twelveControlVectors.Row((2 * component.Item1) + 1) * -component.Item2);//Use negative Torque or Force ControlVector, also negate component since its negative
             }
         }
-        // // rb.AddRelativeForce(Vector3.forward*vForwardBack);
-        // // rb.AddRelativeForce(Vector3.right*vLeftRight);
-        // // rb.AddRelativeForce(Vector3.up*vUpDown);
-        // // rb.AddRelativeTorque(Vector3.forward*vRoll);
-        // // rb.AddRelativeTorque(0.005f*vAim.x*Vector3.up);
-        // // rb.AddRelativeTorque(0.005f*vAim.y*Vector3.left);
-        // vAim *= 0.999f;
+        for (int i = 0; i < thrusters.Count; i++)
+        {
+            thrusters[i].power = (float)thrusterControlVector[i];
+        }
     }
-
-    // private void OnDrawGizmos()
-    // {
-    //     Gizmos.DrawRay(transform.position, expectedAngular);
-    // }
 }
