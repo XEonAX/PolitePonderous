@@ -54,6 +54,14 @@
                     "interactions": ""
                 },
                 {
+                    "name": "ResetRoll",
+                    "type": "Button",
+                    "id": "73b4a4ca-d5c2-429f-be95-20065fdc3a0d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
                     "name": "DisableStabilizer",
                     "type": "Button",
                     "id": "fcdc5e36-02c6-4f7a-9fa7-3285217f73f0",
@@ -65,6 +73,22 @@
                     "name": "ChangeShip",
                     "type": "Button",
                     "id": "8a6548c1-4032-447f-bf4f-6ef442362325",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "PrimaryWeapon",
+                    "type": "Button",
+                    "id": "337dcfb5-58b7-4963-946c-b8c66493e2ea",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "SecondaryWeapon",
+                    "type": "Button",
+                    "id": "120995fa-1219-406d-a604-7c308452648e",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -244,6 +268,39 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "ChangeShip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5ed94452-702c-4ab3-9e8f-d99db3ab379a",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "PrimaryWeapon",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "04f52e18-614c-4284-82ab-38d8bf9a8f48",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "SecondaryWeapon",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ee9abcd7-e550-433f-9c5a-6fbe6c8c1f96",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "ResetRoll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

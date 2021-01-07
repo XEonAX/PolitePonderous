@@ -27,6 +27,14 @@ public class Spaceship : MonoBehaviour
     public Vector3 maxTorque = Vector3.zero;
     public Vector3 minTorque = Vector3.zero;
 
+
+    public float MaxForwardVelocity = 220;
+    public float MaxRightVelocity = 10;
+    public float MaxUpVelocity = 20;
+    public float ForwardThrottle = 0;
+    public float MaxVelocity = 330;
+    public float MaxAngularVelocity = 5;
+
     void Awake()
     {
 
@@ -66,7 +74,7 @@ public class Spaceship : MonoBehaviour
             });
             thrusterIndex++;
         }
-        ThrustVectorsMatrix = ThrustVectorsMatrix.NormalizeColumns(1);
+        ThrustVectorsMatrix = ThrustVectorsMatrix.NormalizeRows(1);
         thrusterControlVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(thrusters.Count, 0);
         minControlVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(thrusters.Count, 0);
         maxControlVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(thrusters.Count, 1);
@@ -121,38 +129,52 @@ public class Spaceship : MonoBehaviour
 
     private void FixedUpdate()
     {
-        var userInputVelocity = new Vector3(InputMgr.vLeftRight, InputMgr.vUpDown, InputMgr.vForwardBack);
-        var userInputAngularVelocity = (Vector3.forward * InputMgr.vRoll);
-        if (InputMgr.vAim.sqrMagnitude > 0.1f)//Deadzone
-        {
-            userInputAngularVelocity += -Vector3.right * InputMgr.vAim.y;
-            userInputAngularVelocity += Vector3.up * InputMgr.vAim.x;
-        }
+        var UserExpectedForwardVelocity = InputMgr.vForwardBack * MaxForwardVelocity;
+        var UserExpectedRightVelocity = InputMgr.vLeftRight * MaxRightVelocity;
+        var UserExpectedUpVelocity = InputMgr.vUpDown * MaxUpVelocity;
+        var UserExpectedVelocity = new Vector3(UserExpectedRightVelocity, UserExpectedUpVelocity, UserExpectedForwardVelocity);
+        var UserExpectedAngularVelocity = (Vector3.forward * InputMgr.vRoll);
 
-        if (!InputMgr.disableStabilizer)
+        //var userInputVelocity = new Vector3(InputMgr.vLeftRight, InputMgr.vUpDown, InputMgr.vForwardBack);
+        //var userInputAngularVelocity = (Vector3.forward * InputMgr.vRoll);
+        if (InputMgr.vAim.sqrMagnitude > 0.02f)//Deadzone
+        {
+            UserExpectedAngularVelocity += -Vector3.right * InputMgr.vAim.y * InputMgr.AimSensitivityCurve.Evaluate(InputMgr.vAim.sqrMagnitude);
+            UserExpectedAngularVelocity += Vector3.up * InputMgr.vAim.x * InputMgr.AimSensitivityCurve.Evaluate(InputMgr.vAim.sqrMagnitude);
+        }
+        var stabilize = !InputMgr.disableStabilizer;
+        if (stabilize)
         {
             var currentVelocity = transform.InverseTransformDirection(rb.velocity);
             var currentAngularVelocity = transform.InverseTransformDirection(rb.angularVelocity);
-            if (Vector3.Dot(userInputVelocity, currentVelocity.normalized) <= .5f)
-            {
-                userInputVelocity = (userInputVelocity - (currentVelocity * .5f));
-                if (userInputVelocity.sqrMagnitude > 0 && userInputVelocity.sqrMagnitude <= 1)//Speed up braking when slow
-                    userInputVelocity = userInputVelocity.normalized * InputMgr.StabilizerCurve.Evaluate(userInputVelocity.sqrMagnitude);
-            }
-            if (Vector3.Dot(userInputAngularVelocity, currentAngularVelocity.normalized) <= .5f)
-            {
-                userInputAngularVelocity = (userInputAngularVelocity - (currentAngularVelocity * .5f));
-                if (userInputAngularVelocity.sqrMagnitude > 0 && userInputAngularVelocity.sqrMagnitude <= 1)//Speed up braking when slow
-                    userInputAngularVelocity = userInputAngularVelocity.normalized * InputMgr.StabilizerCurve.Evaluate(userInputAngularVelocity.sqrMagnitude);
-            }
+
+            var deltaVelocity = UserExpectedVelocity - currentVelocity;
+            var deltaAngularVelocity = UserExpectedAngularVelocity - currentAngularVelocity;
+            UserExpectedVelocity.x = Mathf.Clamp(deltaVelocity.x, -MaxRightVelocity, MaxRightVelocity);
+            UserExpectedVelocity.y = Mathf.Clamp(deltaVelocity.y, -MaxUpVelocity, MaxUpVelocity);
+            UserExpectedVelocity.z = Mathf.Clamp(deltaVelocity.z, -MaxForwardVelocity, MaxForwardVelocity);
+            UserExpectedVelocity = Vector3.ClampMagnitude(UserExpectedVelocity, MaxVelocity);
+            UserExpectedAngularVelocity = Vector3.ClampMagnitude(deltaAngularVelocity, MaxAngularVelocity) * 10;
+            // if (Vector3.Dot(userInputVelocity, currentVelocity.normalized) <= .5f)
+            // {
+            //     userInputVelocity = (userInputVelocity - (currentVelocity * .5f));
+            //     if (userInputVelocity.sqrMagnitude > 0 && userInputVelocity.sqrMagnitude <= 1)//Speed up braking when slow
+            //         userInputVelocity = userInputVelocity.normalized * InputMgr.StabilizerCurve.Evaluate(userInputVelocity.sqrMagnitude);
+            // }
+            // if (Vector3.Dot(userInputAngularVelocity, currentAngularVelocity.normalized) <= 1f)
+            // {
+            //     userInputAngularVelocity = (userInputAngularVelocity - (currentAngularVelocity * 1f));
+            //     if (userInputAngularVelocity.sqrMagnitude > 0 && userInputAngularVelocity.sqrMagnitude <= 1)//Speed up braking when slow
+            //         userInputAngularVelocity = userInputAngularVelocity.normalized * InputMgr.StabilizerCurve.Evaluate(userInputAngularVelocity.sqrMagnitude);
+            // }
         }
 
-        UserInputVector[0] = userInputAngularVelocity.x;
-        UserInputVector[1] = userInputAngularVelocity.y;
-        UserInputVector[2] = userInputAngularVelocity.z;
-        UserInputVector[3] = userInputVelocity.x;
-        UserInputVector[4] = userInputVelocity.y;
-        UserInputVector[5] = userInputVelocity.z;
+        UserInputVector[0] = UserExpectedAngularVelocity.x;
+        UserInputVector[1] = UserExpectedAngularVelocity.y;
+        UserInputVector[2] = UserExpectedAngularVelocity.z;
+        UserInputVector[3] = UserExpectedVelocity.x;
+        UserInputVector[4] = UserExpectedVelocity.y;
+        UserInputVector[5] = UserExpectedVelocity.z;
 
         thrusterControlVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(thrusters.Count);
         foreach (var component in UserInputVector.EnumerateIndexed())
@@ -166,6 +188,10 @@ public class Spaceship : MonoBehaviour
                 thrusterControlVector = thrusterControlVector.Add(twelveControlVectors.Row((2 * component.Item1) + 1) * -component.Item2);//Use negative Torque or Force ControlVector, also negate component since its negative
             }
         }
+        var AbsoluteMaximum = thrusterControlVector.AbsoluteMaximum();
+        if (AbsoluteMaximum > 1)
+            thrusterControlVector = thrusterControlVector.Divide(AbsoluteMaximum);
+        Debug.Log("UserInputVector=" + UserInputVector);
         for (int i = 0; i < thrusters.Count; i++)
         {
             thrusters[i].power = (float)thrusterControlVector[i];

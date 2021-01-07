@@ -15,8 +15,6 @@ public class Thruster : MonoBehaviour
     private Rigidbody spaceship;
     private float scale;
 
-    public float getActualMaxPower => maxForce * scale;
-
     public Transform exhaust;
     private LineRenderer lineRenderer;
     private TrailRenderer trailRenderer;

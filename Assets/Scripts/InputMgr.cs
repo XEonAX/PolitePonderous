@@ -8,9 +8,16 @@ public class InputMgr : MonoBehaviour
     public float vForwardBack;
     public float vForwardBackIncrementor;
     public bool vForwardBackDoIncrement;
+
     public float vLeftRight;
+    public float vLeftRightIncrementor;
+    public bool vLeftRightDoIncrement;
     public float vUpDown;
+    public float vUpDownIncrementor;
+    public bool vUpDownDoIncrement;
     public float vRoll;
+    public float vRollIncrementor;
+    public bool vRollDoIncrement;
     public Vector2 vAim;
     public bool disableStabilizer = false;
     public AnimationCurve StabilizerCurve;
@@ -18,6 +25,9 @@ public class InputMgr : MonoBehaviour
     public Vector3 expectedVelocity;
     public Vector3 expectedAngular;
     public static InputMgr Instance;
+
+    public bool PrimaryFire;
+    public bool SecondaryFire;
     private void Awake()
     {
         Instance = this;
@@ -37,28 +47,57 @@ public class InputMgr : MonoBehaviour
     }
     public void OnLeftRight(InputAction.CallbackContext value)
     {
-        vLeftRight = value.ReadValue<float>();
+        if (value.phase == InputActionPhase.Performed)
+        {
+            vLeftRightIncrementor = value.ReadValue<float>();
+            vLeftRightDoIncrement = true;
+        }
+        else if (value.phase == InputActionPhase.Canceled)
+            vLeftRightDoIncrement = false;
     }
     public void OnUpDown(InputAction.CallbackContext value)
     {
-        vUpDown = value.ReadValue<float>();
+        if (value.phase == InputActionPhase.Performed)
+        {
+            vUpDownIncrementor = value.ReadValue<float>();
+            vUpDownDoIncrement = true;
+        }
+        else if (value.phase == InputActionPhase.Canceled)
+            vUpDownDoIncrement = false;
     }
     public void OnRoll(InputAction.CallbackContext value)
     {
-        vRoll = value.ReadValue<float>();
+        if (value.phase == InputActionPhase.Performed)
+        {
+            vRollIncrementor = value.ReadValue<float>();
+            vRollDoIncrement = true;
+        }
+        else if (value.phase == InputActionPhase.Canceled)
+            vRollDoIncrement = false;
     }
     public void OnAim(InputAction.CallbackContext value)
     {
         var vAimDelta = value.ReadValue<Vector2>();
         //Debug.Log(vAim.sqrMagnitude + "  " + vAimDelta);
-        vAim += vAimDelta * AimSensitivityCurve.Evaluate(vAim.sqrMagnitude);
+        vAim += vAimDelta * 0.005f;
         vAim = Vector3.ClampMagnitude(vAim, 1);
     }
     public void OnResetForwardBack(InputAction.CallbackContext value)
     {
         vForwardBack = 0;
         vForwardBackIncrementor = 0;
+        vLeftRight = 0;
+        vLeftRightIncrementor = 0;
+        vUpDown = 0;
+        vUpDownIncrementor = 0;
+        vRoll = 0;
+        vRollIncrementor = 0;
         vAim = Vector2.zero;
+    }
+    public void OnResetRoll(InputAction.CallbackContext value)
+    {
+        vRoll = 0;
+        vRollIncrementor = 0;
     }
 
     public void OnDisableStabilizer(InputAction.CallbackContext value)
@@ -83,6 +122,26 @@ public class InputMgr : MonoBehaviour
             SpaceShipManager.Instance.FocusNextShip();
     }
 
+
+    public void OnPrimaryFire(InputAction.CallbackContext value)
+    {
+        if (value.phase == InputActionPhase.Performed)
+        {
+            PrimaryFire = true;
+        }
+        else if (value.phase == InputActionPhase.Canceled)
+            PrimaryFire = false;
+    }
+    public void OnSecondaryFire(InputAction.CallbackContext value)
+    {
+        if (value.phase == InputActionPhase.Performed)
+        {
+            SecondaryFire = true;
+        }
+        else if (value.phase == InputActionPhase.Canceled)
+            SecondaryFire = false;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -101,8 +160,26 @@ public class InputMgr : MonoBehaviour
     {
         if (vForwardBackDoIncrement)
         {
-            vForwardBack += vForwardBackIncrementor * 0.25f;
+            vForwardBack += vForwardBackIncrementor * 0.005f;
             vForwardBack = Mathf.Clamp(vForwardBack, -1, 1);
+        }
+
+        if (vLeftRightDoIncrement)
+        {
+            vLeftRight += vLeftRightIncrementor * 0.005f;
+            vLeftRight = Mathf.Clamp(vLeftRight, -1, 1);
+        }
+
+        if (vUpDownDoIncrement)
+        {
+            vUpDown += vUpDownIncrementor * 0.005f;
+            vUpDown = Mathf.Clamp(vUpDown, -1, 1);
+        }
+
+        if (vRollDoIncrement)
+        {
+            vRoll += vRollIncrementor * 0.005f;
+            vRoll = Mathf.Clamp(vRoll, -1, 1);
         }
 
         // expectedVelocity = transform.TransformDirection(new Vector3(vLeftRight, vUpDown, vForwardBack));

@@ -23,7 +23,7 @@ public class AimIndicator : MonoBehaviour
         rectTransform.localRotation = Quaternion.LookRotation(Vector3.forward, InputMgr.Instance.vAim);
 
         image.color = new Color(image.color.r, image.color.g, image.color.b, InputMgr.Instance.vAim.sqrMagnitude);
-        if (InputMgr.Instance.vAim.sqrMagnitude < 0.1f)
+        if (InputMgr.Instance.vAim.sqrMagnitude < 0.02f)
         {
             rectTransform.localPosition = Vector3.zero;
             rectTransform.localRotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
