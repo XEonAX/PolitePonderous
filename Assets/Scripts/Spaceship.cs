@@ -35,10 +35,8 @@ public class Spaceship : MonoBehaviour
     public float MaxVelocity = 330;
     public float MaxAngularVelocity = 5;
 
-    void Awake()
-    {
+    public Transform WeaponTarget;
 
-    }
     // Start is called before the first frame update
     void Start()
     {
@@ -113,11 +111,7 @@ public class Spaceship : MonoBehaviour
         Debug.Log(twelveControlVectors.ToString(12, thrusters.Count));//6 Components in 2 directions
     }
 
-    // Update is called once per frame
-    void Update()
-    {
 
-    }
 
     MathNet.Numerics.LinearAlgebra.Vector<double> UserInputVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(6);//6 Components (Tx,Ty,Tz,Fx,Fy,Fz)
     private Vector<double> thrusterControlVector;
@@ -195,6 +189,18 @@ public class Spaceship : MonoBehaviour
         for (int i = 0; i < thrusters.Count; i++)
         {
             thrusters[i].power = (float)thrusterControlVector[i];
+        }
+    }
+
+    void Update()
+    {
+        if (Physics.Raycast(transform.position, transform.forward, out var hitinfo, 1000))
+        {
+            WeaponTarget.position = hitinfo.point;
+        }
+        else
+        {
+            WeaponTarget.position = transform.position + transform.forward * 10;
         }
     }
 }

@@ -8,7 +8,7 @@ public class Asteroid : MonoBehaviour
     void Start()
     {
         // GetComponent<Rigidbody>().AddTorque(Random.onUnitSphere * (Random.Range(100, 5000)), ForceMode.Impulse);
-        StartCoroutine(PrepareBoom());
+        //StartCoroutine(PrepareBoom());
     }
     IEnumerator PrepareBoom()
     {
@@ -24,8 +24,8 @@ public class Asteroid : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
-    {
-        // GetComponent<Rigidbody>().AddForce(-transform.position, ForceMode.Impulse);
-    }
+    // void FixedUpdate()
+    // {
+    //     // GetComponent<Rigidbody>().AddForce(-transform.position, ForceMode.Impulse);
+    // }
 }

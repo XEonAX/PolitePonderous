@@ -17,18 +17,16 @@ public class Weapon : MonoBehaviour
 
     public bool Primary;
     public bool Secondary;
-    // Start is called before the first frame update
-    void Start()
+
+    public Transform WeaponTarget;
+    public Transform LocalTarget;
+    public Transform Turret;
+    public Transform Gun;
+    private void Start()
     {
-
+        WeaponTarget = GetComponentInParent<Spaceship>().WeaponTarget;
+        LocalTarget.parent = WeaponTarget;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     private void FixedUpdate()
     {
         Shoot();
@@ -54,5 +52,10 @@ public class Weapon : MonoBehaviour
             idxAmmo = AmmoRegen;
             Ammo = MaxAmmo;
         }
+    }
+    private void Update()
+    {
+        Turret.LookAt(WeaponTarget, transform.up);
+        Gun.LookAt(WeaponTarget, transform.up);
     }
 }

@@ -142,22 +142,12 @@ public class InputMgr : MonoBehaviour
             SecondaryFire = false;
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
 
 
     private void FixedUpdate()
     {
+        vRoll *= 0.991f;
         if (vForwardBackDoIncrement)
         {
             vForwardBack += vForwardBackIncrementor * 0.005f;
@@ -178,10 +168,9 @@ public class InputMgr : MonoBehaviour
 
         if (vRollDoIncrement)
         {
-            vRoll += vRollIncrementor * 0.005f;
+            vRoll += vRollIncrementor * 0.01f;
             vRoll = Mathf.Clamp(vRoll, -1, 1);
         }
-
         // expectedVelocity = transform.TransformDirection(new Vector3(vLeftRight, vUpDown, vForwardBack));
         // expectedAngular = (transform.forward * vRoll);
         // expectedAngular += -transform.right * vAim.y;

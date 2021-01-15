@@ -14,17 +14,12 @@ public class AsteroidField : MonoBehaviour
         OriginalAsteroids = GetComponentsInChildren<Asteroid>().ToList();
         for (int i = 0; i < Count; i++)
         {
-            Instantiate(OriginalAsteroids[Random.Range(0, OriginalAsteroids.Count)], Random.insideUnitSphere * Radius, Random.rotationUniform,transform);
+            Instantiate(OriginalAsteroids[Random.Range(0, OriginalAsteroids.Count)], Random.insideUnitSphere * Radius, Random.rotationUniform, transform);
         }
         for (int i = 0; i < Count; i++)
         {
-            Instantiate(OriginalAsteroids[Random.Range(0, OriginalAsteroids.Count)], Random.onUnitSphere * Radius, Random.rotationUniform,transform);
+            Instantiate(OriginalAsteroids[Random.Range(0, OriginalAsteroids.Count)], Random.onUnitSphere * Radius, Random.rotationUniform, transform);
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 }

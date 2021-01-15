@@ -6,6 +6,8 @@ public class Bullet : MonoBehaviour
 {
     public Rigidbody _rigidbody;
     public TrailRenderer _trailRenderer;
+    private int doRecycle;
+
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
@@ -30,6 +32,7 @@ public class Bullet : MonoBehaviour
     {
         StartCoroutine(Clean());
 
+        doRecycle = -1;
     }
     public virtual void Shoot(float force)
     {
@@ -52,16 +55,11 @@ public class Bullet : MonoBehaviour
         Recycle();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     void OnCollisionEnter(Collision collision)
     {
         // ExplosionVFX.Instance.Add(collision.GetContact(0).point);
-        Recycle();
+        if (doRecycle <= 0)
+            doRecycle = 3;
     }
 
     void Recycle()
@@ -71,5 +69,14 @@ public class Bullet : MonoBehaviour
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
         ObjectPool.Recycle(gameObject);
+    }
+    private void FixedUpdate()
+    {
+        if (doRecycle > 0)
+        {
+            doRecycle--;
+            if (doRecycle == 0)
+                Recycle();
+        }
     }
 }
