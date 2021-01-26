@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class InputMgr : MonoBehaviour
+public class InputMgr : IInputMgr
 {
-    public float vForwardBack;
+    // public override float vForwardBack { get; set; }
     public float vForwardBackIncrementor;
     public bool vForwardBackDoIncrement;
 
-    public float vLeftRight;
+    // public override float vLeftRight { get; set; }
     public float vLeftRightIncrementor;
     public bool vLeftRightDoIncrement;
-    public float vUpDown;
+    // public override float vUpDown { get; set; }
     public float vUpDownIncrementor;
     public bool vUpDownDoIncrement;
-    public float vRoll;
+    // public override float vRoll { get; set; }
     public float vRollIncrementor;
     public bool vRollDoIncrement;
-    public Vector2 vAim;
-    public bool disableStabilizer = false;
+    // public override Vector2 vAim { get; set; }
+    // public override bool disableStabilizer { get; set; } = false;
     public AnimationCurve StabilizerCurve;
     public AnimationCurve AimSensitivityCurve;
     public Vector3 expectedVelocity;

@@ -7,6 +7,7 @@
     "com.unity.ide.vscode": "1.2.3",
     "com.unity.inputsystem": "1.0.1",
     "com.unity.jobs": "0.5.0-preview.14",
+    "com.unity.ml-agents": "file:J:/ROOT/Unity/ml-agents/com.unity.ml-agents",
     "com.unity.probuilder": "4.4.0",
     "com.unity.progrids": "3.0.3-preview.6",
     "com.unity.recorder": "2.3.0-preview.3",

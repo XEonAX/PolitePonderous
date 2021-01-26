@@ -7,6 +7,7 @@ public class StabilizerIndicator : MonoBehaviour
 {
 
     public Text txt;
+    public IInputMgr inputMgr;
     // Start is called before the first frame update
     void Start()
     {
@@ -16,7 +17,7 @@ public class StabilizerIndicator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (InputMgr.Instance.disableStabilizer)
+        if (inputMgr.disableStabilizer)
         {
             txt.text = "Stabilize OFF";
             txt.color = Color.red;

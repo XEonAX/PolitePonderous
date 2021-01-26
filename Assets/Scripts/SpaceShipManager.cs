@@ -19,7 +19,7 @@ public class SpaceShipManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        Spaceships = GetComponentsInChildren<Spaceship>().ToList();
+        //Spaceships = GetComponentsInChildren<Spaceship>().ToList();
     }
     // Start is called before the first frame update
     void Start()

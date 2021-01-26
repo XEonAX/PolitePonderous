@@ -8,6 +8,7 @@ public class AimIndicator : MonoBehaviour
     private RectTransform rectTransform;
 
     private Image image;
+    public IInputMgr inputMgr;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,12 +19,12 @@ public class AimIndicator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        rectTransform.localPosition = InputMgr.Instance.vAim * 100;
+        rectTransform.localPosition = inputMgr.vAim * 100;
 
-        rectTransform.localRotation = Quaternion.LookRotation(Vector3.forward, InputMgr.Instance.vAim);
+        rectTransform.localRotation = Quaternion.LookRotation(Vector3.forward, inputMgr.vAim);
 
-        image.color = new Color(image.color.r, image.color.g, image.color.b, InputMgr.Instance.vAim.sqrMagnitude);
-        if (InputMgr.Instance.vAim.sqrMagnitude < 0.02f)
+        image.color = new Color(image.color.r, image.color.g, image.color.b, inputMgr.vAim.sqrMagnitude);
+        if (inputMgr.vAim.sqrMagnitude < 0.02f)
         {
             rectTransform.localPosition = Vector3.zero;
             rectTransform.localRotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
@@ -32,10 +33,10 @@ public class AimIndicator : MonoBehaviour
         }
         else
         {
-            rectTransform.localPosition = InputMgr.Instance.vAim * 100;
-            rectTransform.localRotation = Quaternion.LookRotation(Vector3.forward, InputMgr.Instance.vAim);
-            image.color = new Color(image.color.r, image.color.g, image.color.b, InputMgr.Instance.vAim.sqrMagnitude);
-            rectTransform.localScale = Vector3.one * InputMgr.Instance.vAim.sqrMagnitude;
+            rectTransform.localPosition = inputMgr.vAim * 100;
+            rectTransform.localRotation = Quaternion.LookRotation(Vector3.forward, inputMgr.vAim);
+            image.color = new Color(image.color.r, image.color.g, image.color.b, inputMgr.vAim.sqrMagnitude);
+            rectTransform.localScale = Vector3.one * inputMgr.vAim.sqrMagnitude;
         }
     }
 }

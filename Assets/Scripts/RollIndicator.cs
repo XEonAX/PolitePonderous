@@ -8,6 +8,7 @@ public class RollIndicator : MonoBehaviour
     private RectTransform rectTransform;
 
     private Image image;
+    public IInputMgr inputMgr;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,7 +19,7 @@ public class RollIndicator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        image.fillClockwise = InputMgr.Instance.vRoll < 0;
-        image.fillAmount = Mathf.Abs(InputMgr.Instance.vRoll);
+        image.fillClockwise = inputMgr.vRoll < 0;
+        image.fillAmount = Mathf.Abs(inputMgr.vRoll);
     }
 }

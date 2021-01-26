@@ -21,7 +21,7 @@ public class Spaceship : MonoBehaviour
     public Transform CameraPosition;
     public Transform CoM;
 
-    public InputMgr InputMgr;
+    public IInputMgr inputMgr;
     public Vector3 maxForce = Vector3.zero;
     public Vector3 minForce = Vector3.zero;
     public Vector3 maxTorque = Vector3.zero;
@@ -36,13 +36,15 @@ public class Spaceship : MonoBehaviour
     public float MaxAngularVelocity = 5;
 
     public Transform WeaponTarget;
+    public List<Weapon> Weapons;
 
     // Start is called before the first frame update
     void Start()
     {
         BootUpThrusters();
         CoM.localPosition = rb.centerOfMass;
-        rb.maxAngularVelocity = 1000;
+        rb.maxAngularVelocity = 100;
+        Weapons = GetComponentsInChildren<Weapon>().ToList();
     }
 
     private void BootUpThrusters()
@@ -107,8 +109,8 @@ public class Spaceship : MonoBehaviour
                             initialGuessControlVector //InitialGuess
                     ));
         }
-        Debug.Log(ThrustVectorsMatrix.ToString(6, thrusters.Count));//6 Components
-        Debug.Log(twelveControlVectors.ToString(12, thrusters.Count));//6 Components in 2 directions
+        // Debug.Log(ThrustVectorsMatrix.ToString(6, thrusters.Count));//6 Components
+        // Debug.Log(twelveControlVectors.ToString(12, thrusters.Count));//6 Components in 2 directions
     }
 
 
@@ -123,20 +125,20 @@ public class Spaceship : MonoBehaviour
 
     private void FixedUpdate()
     {
-        var UserExpectedForwardVelocity = InputMgr.vForwardBack * MaxForwardVelocity;
-        var UserExpectedRightVelocity = InputMgr.vLeftRight * MaxRightVelocity;
-        var UserExpectedUpVelocity = InputMgr.vUpDown * MaxUpVelocity;
+        var UserExpectedForwardVelocity = inputMgr.vForwardBack * MaxForwardVelocity;
+        var UserExpectedRightVelocity = inputMgr.vLeftRight * MaxRightVelocity;
+        var UserExpectedUpVelocity = inputMgr.vUpDown * MaxUpVelocity;
         var UserExpectedVelocity = new Vector3(UserExpectedRightVelocity, UserExpectedUpVelocity, UserExpectedForwardVelocity);
-        var UserExpectedAngularVelocity = (Vector3.forward * InputMgr.vRoll);
+        var UserExpectedAngularVelocity = (Vector3.forward * inputMgr.vRoll);
 
-        //var userInputVelocity = new Vector3(InputMgr.vLeftRight, InputMgr.vUpDown, InputMgr.vForwardBack);
-        //var userInputAngularVelocity = (Vector3.forward * InputMgr.vRoll);
-        if (InputMgr.vAim.sqrMagnitude > 0.02f)//Deadzone
+        //var userInputVelocity = new Vector3(inputMgr.vLeftRight, inputMgr.vUpDown, inputMgr.vForwardBack);
+        //var userInputAngularVelocity = (Vector3.forward * inputMgr.vRoll);
+        if (inputMgr.vAim.sqrMagnitude > 0.02f)//Deadzone
         {
-            UserExpectedAngularVelocity += -Vector3.right * InputMgr.vAim.y * InputMgr.AimSensitivityCurve.Evaluate(InputMgr.vAim.sqrMagnitude);
-            UserExpectedAngularVelocity += Vector3.up * InputMgr.vAim.x * InputMgr.AimSensitivityCurve.Evaluate(InputMgr.vAim.sqrMagnitude);
+            UserExpectedAngularVelocity += -Vector3.right * inputMgr.vAim.y * InputMgr.Instance.AimSensitivityCurve.Evaluate(inputMgr.vAim.sqrMagnitude);
+            UserExpectedAngularVelocity += Vector3.up * inputMgr.vAim.x * InputMgr.Instance.AimSensitivityCurve.Evaluate(inputMgr.vAim.sqrMagnitude);
         }
-        var stabilize = !InputMgr.disableStabilizer;
+        var stabilize = !inputMgr.disableStabilizer;
         if (stabilize)
         {
             var currentVelocity = transform.InverseTransformDirection(rb.velocity);
@@ -185,22 +187,22 @@ public class Spaceship : MonoBehaviour
         var AbsoluteMaximum = thrusterControlVector.AbsoluteMaximum();
         if (AbsoluteMaximum > 1)
             thrusterControlVector = thrusterControlVector.Divide(AbsoluteMaximum);
-        Debug.Log("UserInputVector=" + UserInputVector);
+        //Debug.Log("UserInputVector=" + UserInputVector);
         for (int i = 0; i < thrusters.Count; i++)
         {
             thrusters[i].power = (float)thrusterControlVector[i];
         }
     }
 
-    void Update()
-    {
-        if (Physics.Raycast(transform.position, transform.forward, out var hitinfo, 1000))
-        {
-            WeaponTarget.position = hitinfo.point;
-        }
-        else
-        {
-            WeaponTarget.position = transform.position + transform.forward * 10;
-        }
-    }
+    // void Update()
+    // {
+    //     if (Physics.Raycast(transform.position, transform.forward, out var hitinfo, 1000))
+    //     {
+    //         WeaponTarget.position = hitinfo.point;
+    //     }
+    //     else
+    //     {
+    //         WeaponTarget.position = transform.position + transform.forward * 10;
+    //     }
+    // }
 }
