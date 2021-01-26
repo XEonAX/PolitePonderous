@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class Weapon : MonoBehaviour
 {
     public List<Transform> Barrels;
@@ -22,10 +23,14 @@ public class Weapon : MonoBehaviour
     public Transform LocalTarget;
     public Transform Turret;
     public Transform Gun;
+    public Transform Orientation;
+
+    public bool TargetLockNeeded;
+    public bool TargetLocked;
     private void Start()
     {
         WeaponTarget = GetComponentInParent<Spaceship>().WeaponTarget;
-        LocalTarget.parent = WeaponTarget;
+        //LocalTarget.parent = WeaponTarget;
     }
     private void FixedUpdate()
     {
@@ -44,8 +49,20 @@ public class Weapon : MonoBehaviour
         {
             Ammo--;
             idxRof = RoF;
-            var bullet = ObjectPool.Spawn<Bullet>(Bullet, Barrels[0].position, Barrels[0].rotation);
-            bullet.Shoot(force);
+            if (TargetLockNeeded)
+            {
+                if (TargetLocked)
+                {
+                    var bullet = ObjectPool.Spawn<Bullet>(Bullet, Barrels[0].position, Barrels[0].rotation);
+                    bullet.Shoot(force);
+                }
+            }
+            else
+            {
+                var bullet = ObjectPool.Spawn<Bullet>(Bullet, Barrels[0].position, Barrels[0].rotation);
+                bullet.Shoot(force);
+
+            }
         }
         if (idxAmmo < 0)
         {
@@ -55,7 +72,9 @@ public class Weapon : MonoBehaviour
     }
     private void Update()
     {
-        Turret.LookAt(WeaponTarget, transform.up);
-        Gun.LookAt(WeaponTarget, transform.up);
+        Turret.LookAt(new Vector3(LocalTarget.position.x,
+                                        Turret.position.y,
+                                        LocalTarget.position.z), transform.up);
+        Gun.LookAt(LocalTarget, transform.up);
     }
 }

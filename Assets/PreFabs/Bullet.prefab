@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7768236336345841969}
   - component: {fileID: 6500523886470850426}
   - component: {fileID: 1129350418009496219}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 8992188152280432416}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 2}
   m_Children:
   - {fileID: 109161457894201551}
   m_Father: {fileID: 0}
@@ -43,12 +43,12 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8992188152280432416}
   serializedVersion: 2
-  m_Mass: 100
+  m_Mass: 5000
   m_Drag: 0
   m_AngularDrag: 0
   m_UseGravity: 0
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 2
 --- !u!135 &7768236336345841969
@@ -58,7 +58,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8992188152280432416}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: d98a5293a13f0df45aded8e4cffafee2, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -78,6 +78,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rigidbody: {fileID: 3809934978267036872}
   _trailRenderer: {fileID: 1129350418009496219}
+  explosion: {fileID: 8536238334570430131, guid: 3565eff1806bb7241b8bbf00ec951881, type: 3}
 --- !u!96 &1129350418009496219
 TrailRenderer:
   serializedVersion: 2
@@ -98,7 +99,7 @@ TrailRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6d0819a7cd7ed844c95f9b378e06b219, type: 2}
+  - {fileID: 2100000, guid: be0f0e471d0bf1c4bbd5a59c0b0d0853, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -119,7 +120,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 0.5
+  m_Time: 0.05
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.02
@@ -149,8 +150,8 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 1}
-      key1: {r: 1, g: 1, b: 1, a: 1}
+      key0: {r: 0.7169812, g: 0.12063509, b: 0, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 0}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
