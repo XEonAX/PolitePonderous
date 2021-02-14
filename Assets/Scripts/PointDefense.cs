@@ -59,7 +59,7 @@ public class PointDefense : MonoBehaviour
             //ClosestTarget[i] = ClosestTarget[i] + EnemyPositions[i] * deltaTime;
 
             Vector3 bestTarget = ClosestTarget[i];
-            float closestDistanceSqr = 200;
+            float closestDistanceSqr = 900;
             Vector3 currentPosition = GunPositions[i];
             TargetLocked[i] = false;
             for (int j = 0; j < EnemyCount; j++)
@@ -133,7 +133,7 @@ public class PointDefense : MonoBehaviour
         for (var i = 0; i < GunPositions.Length; i++)
         {
             Vector3 refCurr = Vector3.zero;
-            SpaceShipManager.Instance.FocusedSpaceship.Weapons[i].LocalTarget.position = Vector3.SmoothDamp(SpaceShipManager.Instance.FocusedSpaceship.Weapons[i].LocalTarget.position, job.ClosestTarget[i], ref refCurr, Time.deltaTime, 100);
+            SpaceShipManager.Instance.FocusedSpaceship.Weapons[i].LocalTarget.position = Vector3.SmoothDamp(SpaceShipManager.Instance.FocusedSpaceship.Weapons[i].LocalTarget.position, job.ClosestTarget[i], ref refCurr, Time.deltaTime, 50);
             SpaceShipManager.Instance.FocusedSpaceship.Weapons[i].TargetLocked = job.TargetLocked[i];
         }
         // Debug.Log(job.ClosestTarget[0]);

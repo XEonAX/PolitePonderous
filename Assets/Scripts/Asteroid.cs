@@ -14,8 +14,8 @@ public class Asteroid : MonoBehaviour
         // GetComponent<Rigidbody>().AddTorque(Random.onUnitSphere * (Random.Range(100, 5000)), ForceMode.Impulse);
         //StartCoroutine(PrepareBoom());
         rb = GetComponent<Rigidbody>();
-        rb.AddForce(Vector3.Cross(transform.position.normalized, Vector3.up) * V, ForceMode.VelocityChange);
-        F = (rb.mass * V * V) / transform.position.magnitude;
+        // rb.AddForce(Vector3.Cross(transform.position.normalized, Vector3.up) * V, ForceMode.VelocityChange);
+        // F = (rb.mass * V * V) / transform.position.magnitude;
     }
     IEnumerator PrepareBoom()
     {
@@ -43,6 +43,6 @@ public class Asteroid : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.AddForce(-transform.position.normalized * F, ForceMode.Force);
+        // rb.AddForce(-transform.position.normalized * F, ForceMode.Force);
     }
 }

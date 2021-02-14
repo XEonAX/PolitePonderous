@@ -32,12 +32,17 @@ public class AsteroidField : MonoBehaviour
         // {
         //     Asteroids.Add(Instantiate(OriginalAsteroids[Random.Range(0, OriginalAsteroids.Count)], Random.onUnitSphere * Radius, Random.rotationUniform, transform));
         // }
+        // for (int i = 0; i < Count; i++)
+        // {
+        //     Vector3 pos = Random.insideUnitCircle.normalized;
+        //     pos.z = pos.y;
+        //     pos.y = 0;
+        //     Asteroids.Add(Instantiate(OriginalAsteroids[Random.Range(0, OriginalAsteroids.Count)], pos * Radius * Random.Range(0.5f, 1.5f), Random.rotationUniform, transform));
+        // }
         for (int i = 0; i < Count; i++)
         {
-            Vector3 pos = Random.insideUnitCircle.normalized;
-            pos.z = pos.y;
-            pos.y = 0;
-            Asteroids.Add(Instantiate(OriginalAsteroids[Random.Range(0, OriginalAsteroids.Count)], pos * Radius * Random.Range(0.5f, 1.5f), Random.rotationUniform, transform));
+            Vector3 pos = new Vector3(Random.Range(-5f,5f),Random.Range(-5f, 5f),Random.Range(-350f, 50f));
+            Asteroids.Add(Instantiate(OriginalAsteroids[Random.Range(0, OriginalAsteroids.Count)], pos, Random.rotationUniform, transform));
         }
     }
 

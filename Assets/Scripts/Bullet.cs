@@ -59,7 +59,7 @@ public class Bullet : MonoBehaviour
     {
         // ExplosionVFX.Instance.Add(collision.GetContact(0).point);
         if (doRecycle <= 0)
-            doRecycle = 3;
+            doRecycle = 2;
         var asteroid = collision.gameObject.GetComponent<Asteroid>();
         if (asteroid != null)
         {

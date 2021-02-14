@@ -27,8 +27,10 @@ public class Weapon : MonoBehaviour
 
     public bool TargetLockNeeded;
     public bool TargetLocked;
+    private Spaceship Spaceship;
     private void Start()
     {
+        Spaceship = GetComponentInParent<Spaceship>();
         WeaponTarget = GetComponentInParent<Spaceship>().WeaponTarget;
         //LocalTarget.parent = WeaponTarget;
     }
@@ -55,13 +57,14 @@ public class Weapon : MonoBehaviour
                 {
                     var bullet = ObjectPool.Spawn<Bullet>(Bullet, Barrels[0].position, Barrels[0].rotation);
                     bullet.Shoot(force);
+                    //Spaceship.rb.AddForceAtPosition(-Barrels[0].forward*force/20, Barrels[0].position,ForceMode.Impulse);
                 }
             }
             else
             {
                 var bullet = ObjectPool.Spawn<Bullet>(Bullet, Barrels[0].position, Barrels[0].rotation);
                 bullet.Shoot(force);
-
+                //Spaceship.rb.AddForceAtPosition(-Barrels[0].forward * force/20, Barrels[0].position, ForceMode.Impulse);
             }
         }
         if (idxAmmo < 0)
@@ -72,9 +75,12 @@ public class Weapon : MonoBehaviour
     }
     private void Update()
     {
-        Turret.LookAt(new Vector3(LocalTarget.position.x,
-                                        Turret.position.y,
-                                        LocalTarget.position.z), transform.up);
+
+        Vector3 rot = Quaternion.LookRotation(LocalTarget.localPosition - Turret.transform.localPosition).eulerAngles;
+        rot.x = rot.z = 0;
+        Turret.localRotation = Quaternion.Euler(rot);
+
+
         Gun.LookAt(LocalTarget, transform.up);
     }
 }
